@@ -60,7 +60,7 @@ X = [ [ Int("x_%s_%s" % (i+1, j+1)) for i in range(cx_size) ]
 celulas  = [ And(1 <= X[j][i], X[j][i] <= cx_size*cy_size) for i in range(cx_size) for j in range(cy_size) ]
 
 #Cada número é unico na matriz
-num_unico =  [ Distinct(X[j][i]) for i in range(cx_size) for j in range(cy_size) ]
+num_unico = [ Distinct([X[j][i] for i in range(cx_size)  for j in range(cy_size)]) ]
 
 
 #O somatorio das linhas tem de ser igual ao numero em cx
