@@ -1,0 +1,97 @@
+\documentclass{article}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{oz} %Z notatio
+\usepackage{listings}
+\usepackage{verbatim}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=black           % color of external links
+}
+
+\title{SolveSurvo\\ Z3}
+\author{José Pinheiro \texttt{pg23208@alunos.uminho.pt} 
+		\\ Tiago Guimarães \texttt{pg22832@alunos.uminho.pt}}
+		
+\begin{document}
+\maketitle
+\newpage
+\section{Survo}
+
+\paragraph{} O Survo é um puzzle onde o objectivo é preencher uma tabela m * n com inteiros entre 1...M*N, de tal maneira que cada um desses números aparece apenas uma vez e a soma da linha e coluna é igual ao inteiro do fundo da tabela e do lado direito da tabela. Podem ser dados inteiros na tabela inicial para garantir a unicidade da solução e para fazer a tarefa mais fácil.
+
+\section{Z3}
+
+\paragraph{} Como SMT-solver estamos a usar o z3 da Microsoft. Escolhemos este smt-solver porque nós foi recomendado nas aulas de vfs. Como linguagem de interface com o z3 escolhemos o python (z3Py) devido a ser uma linguagem simples, eficaz e devido a mesma suportar listas por compreensão.
+
+\section{solveSurvo}
+
+\paragraph{} O solveSurvo é invocado com \$ solveSurvo.py <ficheiro\_input>, se conseguir resolver o puzzle devolve um ficheiro output com a solução do puzzle. Necessita que o z3 esteja instalado e conectado com o python.
+
+\subsection{Ficheiros input}
+
+\paragraph{} Para representar um tabuleiro de survo, escolhemos uma sintaxe muito simples.
+A primeira linha é os valores que o as colunas tem de somar, e a segunda linha é os valores que as linhas tem de somar.
+Para representar os pontos dados, temos a posição da matriz e o valor correspondente.
+\paragraph{}
+Exemplo :
+\begin{verbatim}
+27	16	10	25
+30	18	30
+1 2 6
+2 1 8
+3 3 3
+\end{verbatim} 
+
+\subsection{Ficheiros output}
+\paragraph{} o SolveSurvo da como output um ficheiro com a representação da matriz obtida e os valores que as linhas e as colunas tem de somar.
+
+\paragraph{}
+Exemplo :
+\begin{verbatim}
+[7, 6, 5, 12]
+[8, 3, 2, 5]
+[12, 7, 3, 8]
+
+Linhas   : [30, 18, 30]
+Colunas  : [27, 16, 10, 25]
+\end{verbatim}
+
+\subsection{Codificação do Survo}
+\paragraph{} Para codificar o puzzle, codificamos 4 propriedades do puzzle:
+ \begin{itemize}
+ \item \textbf{(A)} Cada célula tem valores entre 1..m*n;
+ \item \textbf{(B)} Cada número é único no tabuleiro;
+ \item \textbf{(C)} O somatório das linhas tem de ser igual ao valor na coluna final;
+ \item \textbf{(D)} O somatório das colunas tem de ser igual ao valor na linha final.
+ \end{itemize}
+
+Sendo que X é a matriz que representa o tabuleiro, e cx\_size*cy\_size é tamanho da mesma então a sua codificação é:
+
+\paragraph{(A)}
+\begin{verbatim}
+[ And(1 <= X[j][i], X[j][i] <= cx_size*cy_size) for i in range(cx_size) 
+												for j in range(cy_size) ]
+\end{verbatim}
+\paragraph{(B)}
+\begin{verbatim}
+[ Distinct(X[j][i]) for i in range(cx_size) for j in range(cy_size) ]
+\end{verbatim}
+\paragraph{(C)}
+\begin{verbatim}
+[ cy[i] == sum(X[i]) for i in range(cy_size) ]
+\end{verbatim}
+\paragraph{(D)}
+\begin{verbatim}
+[ cx[j] == sum([ X[i][j] for i in range(cy_size) ])
+             for j in range(cx_size) ]
+
+\end{verbatim}
+
+\end{document}
